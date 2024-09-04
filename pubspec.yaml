@@ -1,7 +1,7 @@
 name: ultimate_particle_fx
-description: "A new Flutter package project."
+description: Ultimate Particle FX is a customizable particle effects for your Flutter applications.
 version: 0.0.1
-homepage:
+homepage: https://github.com/saginbajracharya/ultimate_particle_fx
 
 environment:
   sdk: '>=3.3.3 <4.0.0'
