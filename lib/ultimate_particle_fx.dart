@@ -37,7 +37,7 @@ class UltimateParticleFx extends StatefulWidget {
     this.lifespan = 100.0,
     this.maxParticles= 100,
     this.speed = 1.0,
-    this.shapes = const [ParticleShape.circle],
+    this.shapes = const [ParticleShape.heart],
     this.customParticleImage,
     this.rotation = 0.0,
     this.rotationSpeed = 0.0,
@@ -67,7 +67,12 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
       final containerSize = Size(widget.width, widget.height);
       // Add initial particles
       for (int i = 0; i < widget.maxParticles; i++) {
-        particles.add(createParticle(containerSize));
+        final newParticle = createParticle(containerSize);
+        if (newParticle != null) {
+          particles.add(newParticle);
+        }else{
+          particles.clear();
+        }
       }
       _controller.addListener(() {
         updateParticles(containerSize);
@@ -100,7 +105,11 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
     }
   }
 
-  Particle createParticle(Size containerSize) {
+  Particle? createParticle(Size containerSize) {
+    if (widget.shapes.isEmpty) {
+      particles.clear();
+      return null; // Return null if no shapes are defined
+    }
     final random = Random();
     final angle = random.nextDouble() * 2 * pi; // Random angle
     final speed = widget.speed; // Use the speed parameter
@@ -130,6 +139,10 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
   }
 
   void updateParticles(Size containerSize) {
+    if (widget.shapes.isEmpty) {
+      particles.clear();
+      return; // Skip updating particles if no shapes are defined
+    }
     setState(() {
       for (var particle in particles) {
         particle.position += particle.velocity;
@@ -147,7 +160,13 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
       if (widget.neverEnding) {
         int missingParticles = widget.maxParticles - particles.length;
         for (int i = 0; i < missingParticles; i++) {
-          particles.add(createParticle(containerSize));
+          final newParticle = createParticle(containerSize);
+          if (newParticle != null) {
+            particles.add(newParticle);
+          }
+          else{
+            particles.clear();
+          }
         }
       }
     });
