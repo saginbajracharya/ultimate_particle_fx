@@ -99,65 +99,88 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
             child: const Center(child: Text('')),
           ),
-          SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                const SizedBox(height: kBottomNavigationBarHeight),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: _allShapes.map((shape) {
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: CheckboxListTile(
-                        title: Text(shape.toString().split('.').last,style: const TextStyle(color:Colors.white)), // Display shape name
-                        value: _selectedShapes.contains(shape),
-                        onChanged: (bool? value) {
-                          _toggleShape(shape, value ?? false);
+          // DraggableScrollableSheet that contains the customization options
+          DraggableScrollableSheet(
+            initialChildSize: 0.08, // Initially collapsed
+            minChildSize: 0.08, // Minimum height
+            maxChildSize: 0.8, // Maximum height when fully expanded
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: const BoxDecoration(
+                  color: Colors.white12,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+                ),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Center(
+                        child: Icon(
+                          Icons.drag_handle,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Particle Shape Selection',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      const SizedBox(height: 10),
+                      // Checkbox list for shapes
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _allShapes.map((shape) {
+                          return CheckboxListTile(
+                            title: Text(
+                              shape.toString().split('.').last,
+                              style: const TextStyle(color: Colors.white),
+                            ), // Display shape name
+                            value: _selectedShapes.contains(shape),
+                            onChanged: (bool? value) {
+                              _toggleShape(shape, value ?? false);
+                            },
+                            controlAffinity: ListTileControlAffinity.leading,
+                            activeColor: Colors.white,
+                            checkColor: Colors.black,
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Adjust Particle Size',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      RangeSlider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        values: _particleSizeRange,
+                        min: 0.1, // Minimum size for particles
+                        max: 300.0, // Maximum size for particles
+                        divisions: 100, // Optional, to control steps between values
+                        labels: RangeLabels(
+                          _particleSizeRange.start.round().toString(),
+                          _particleSizeRange.end.round().toString(),
+                        ),
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            _particleSizeRange = newRange;
+                          });
                         },
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                // Add a text description for the range slider
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Adjust Particle Size', style: TextStyle(color: Colors.white)),
-                ),
-                RangeSlider(
-                  activeColor: Colors.white,
-                  inactiveColor: Colors.grey,
-                  values: _particleSizeRange,
-                  min: 0.1,  // Minimum size for particles
-                  max: 300.0,  // Maximum size for particles
-                  divisions: 100,  // Optional, to control steps between values
-                  labels: RangeLabels(
-                    _particleSizeRange.start.round().toString(),
-                    _particleSizeRange.end.round().toString(),
-                  ),
-                  onChanged: (RangeValues newRange) {
-                    setState(() {
-                      _particleSizeRange = newRange;
-                    });
-                  },
-                ),
-                // Display current range values
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Min Size: ${_particleSizeRange.start.toStringAsFixed(1)}, Max Size: ${_particleSizeRange.end.toStringAsFixed(1)}',
-                    style: const TextStyle(color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Min Size: ${_particleSizeRange.start.toStringAsFixed(1)}, Max Size: ${_particleSizeRange.end.toStringAsFixed(1)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),
