@@ -1,0 +1,16 @@
+enum ParticleShape {
+  circle,
+  square,
+  triangle,
+  star,
+  hexagon,
+  diamond,
+  pentagon,
+  ellipse,
+  cross,
+  heart,
+  arrow,
+  cloud,
+  octagon,
+  custom,
+}

@@ -4,6 +4,9 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:ultimate_particle_fx/particles_enum/movement_direction.dart';
+import 'package:ultimate_particle_fx/particles_enum/particle_shapes.dart';
+import 'package:ultimate_particle_fx/particles_enum/spawn_position.dart';
 
 class UltimateParticleFx extends StatefulWidget {
   final bool neverEnding; 
@@ -16,12 +19,21 @@ class UltimateParticleFx extends StatefulWidget {
   final double minSize;
   final double maxSize; 
   final double lifespan;
+  final int initialParticles;
   final int maxParticles;
   final double speed;
   final List<ParticleShape> shapes;
   final List<ImageProvider>? customParticleImage;
   final double rotation;
   final double rotationSpeed;
+  final Gradient? gradient;
+  final bool allowParticlesExitSpawnArea; // Allow Particles to Escape Defined Spawn Area Or Not
+  final Offset spawnAreaPosition; // Position of the spawn area
+  final SpawnPosition spawnPosition; // Position of the spawn position within spawnArea
+  final MovementDirection movementDirection; // Direction of the spawned particles movement
+  final double spawnAreaWidth;
+  final double spawnAreaHeight;
+  final Color? spawnAreaColor;
 
   const UltimateParticleFx({
     super.key,
@@ -33,14 +45,23 @@ class UltimateParticleFx extends StatefulWidget {
     this.velocity = const Offset(1,1), 
     this.colors = const [Colors.black,Colors.red,Colors.blue],
     this.minSize = 5.0,
-    this.maxSize = 10.0,
+    this.maxSize = 6.0,
     this.lifespan = 100.0,
+    this.initialParticles = 1,
     this.maxParticles= 100,
     this.speed = 1.0,
     this.shapes = const [ParticleShape.heart],
     this.customParticleImage,
     this.rotation = 0.0,
     this.rotationSpeed = 0.0,
+    this.gradient,
+    this.allowParticlesExitSpawnArea = true,
+    this.spawnAreaPosition = const Offset(0, 0),
+    this.spawnPosition = SpawnPosition.random,
+    this.movementDirection = MovementDirection.random,
+    this.spawnAreaWidth = double.infinity,
+    this.spawnAreaHeight = double.infinity, 
+    this.spawnAreaColor = Colors.transparent,
   });
 
   @override
@@ -113,8 +134,70 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
     final random = Random();
     final angle = random.nextDouble() * 2 * pi; // Random angle
     final speed = widget.speed; // Use the speed parameter
-    final velocityX = speed * cos(angle);
-    final velocityY = speed * sin(angle);
+    double velocityX = speed * cos(angle);
+    double velocityY = speed * sin(angle);
+
+    // Calculate spawn position based on SpawnPosition
+    double spawnX, spawnY;
+    final double spawnAreaWidth = min(widget.spawnAreaWidth, containerSize.width);
+    final double spawnAreaHeight = min(widget.spawnAreaHeight, containerSize.height);
+    final spawnAreaLeft = widget.spawnAreaPosition.dx;
+    final spawnAreaTop = widget.spawnAreaPosition.dy;
+    switch (widget.spawnPosition) {
+      case SpawnPosition.top:
+        spawnX = spawnAreaLeft + random.nextDouble() * spawnAreaWidth; // Add the horizontal offset here
+        spawnY = spawnAreaTop;
+        break;
+      case SpawnPosition.bottom:
+        spawnX = spawnAreaLeft + random.nextDouble() * spawnAreaWidth; // Add the horizontal offset here
+        spawnY = spawnAreaTop + spawnAreaHeight;
+        break;
+      case SpawnPosition.left:
+        spawnX = spawnAreaLeft; // Already using the correct offset
+        spawnY = random.nextDouble() * spawnAreaHeight + spawnAreaTop; // Add vertical offset
+        break;
+      case SpawnPosition.right:
+        spawnX = spawnAreaLeft + spawnAreaWidth; // Already using the correct offset
+        spawnY = random.nextDouble() * spawnAreaHeight + spawnAreaTop; // Add vertical offset
+        break;
+      case SpawnPosition.center:
+        spawnX = spawnAreaLeft + spawnAreaWidth / 2; // Correctly use the horizontal offset
+        spawnY = spawnAreaTop + spawnAreaHeight / 2; // Correctly use the vertical offset
+        break;
+      case SpawnPosition.random:
+      default:
+        spawnX = spawnAreaLeft + random.nextDouble() * spawnAreaWidth; // Add horizontal offset for random spawn
+        spawnY = spawnAreaTop + random.nextDouble() * spawnAreaHeight; // Add vertical offset for random spawn
+        break;
+    }
+    // Calculate velocity based on MovementDirection
+    switch (widget.movementDirection) {
+      case MovementDirection.top:
+        velocityX = 0;
+        velocityY = -speed;
+        break;
+      case MovementDirection.bottom:
+        velocityX = 0;
+        velocityY = speed;
+        break;
+      case MovementDirection.left:
+        velocityX = -speed;
+        velocityY = 0;
+        break;
+      case MovementDirection.right:
+        velocityX = speed;
+        velocityY = 0;
+        break;
+      case MovementDirection.center:
+        velocityX = 0;
+        velocityY = 0;
+        break;
+      case MovementDirection.random:
+      default:
+        // Keep the random velocity
+        break;
+    }
+
     // Generate a random size between minSize and maxSize
     final size = widget.minSize + random.nextDouble() * (widget.maxSize - widget.minSize);
     return Particle(
@@ -122,12 +205,9 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
       child: widget.child,
       width: widget.width,
       height: widget.height,
-      position: Offset(
-        random.nextDouble() * containerSize.width,
-        random.nextDouble() * containerSize.height,
-      ),
+      position: Offset(spawnX, spawnY),
       velocity: Offset(velocityX, velocityY),
-      color: widget.colors[random.nextInt(widget.colors.length)],
+      color: widget.colors.isEmpty? Colors.transparent :widget.colors[random.nextInt(widget.colors.length)],
       size: size,
       lifespan: random.nextDouble() * widget.lifespan, 
       maxParticles: widget.maxParticles,
@@ -135,6 +215,7 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
       customParticleImage: customImages.isNotEmpty ? customImages[random.nextInt(customImages.length)] : null,
       rotation: widget.rotation,
       rotationSpeed: widget.rotationSpeed,
+      gradient: widget.gradient,
     );
   }
 
@@ -146,16 +227,37 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
     setState(() {
       for (var particle in particles) {
         particle.position += particle.velocity;
-        particle.position = Offset(
-          particle.position.dx.clamp(0.0, containerSize.width),
-          particle.position.dy.clamp(0.0, containerSize.height),
-        );
+
+        // Ensure particles stay within the spawn area
+        if (!widget.allowParticlesExitSpawnArea) {
+          double spawnAreaLeft = widget.spawnAreaPosition.dx;
+          double spawnAreaTop = widget.spawnAreaPosition.dy;
+          double spawnAreaRight = spawnAreaLeft + widget.spawnAreaWidth;
+          double spawnAreaBottom = spawnAreaTop + widget.spawnAreaHeight;
+
+          // Adjust position if out of bounds
+          if (particle.position.dx < spawnAreaLeft) {
+            particle.position = Offset(spawnAreaLeft, particle.position.dy);
+            particle.velocity = Offset(particle.velocity.dx.abs(), particle.velocity.dy); // Reflect velocity
+          } else if (particle.position.dx > spawnAreaRight) {
+            particle.position = Offset(spawnAreaRight, particle.position.dy);
+            particle.velocity = Offset(-particle.velocity.dx.abs(), particle.velocity.dy); // Reflect velocity
+          }
+          
+          if (particle.position.dy < spawnAreaTop) {
+            particle.position = Offset(particle.position.dx, spawnAreaTop);
+            particle.velocity = Offset(particle.velocity.dx, particle.velocity.dy.abs()); // Reflect velocity
+          } else if (particle.position.dy > spawnAreaBottom) {
+            particle.position = Offset(particle.position.dx, spawnAreaBottom);
+            particle.velocity = Offset(particle.velocity.dx, -particle.velocity.dy.abs()); // Reflect velocity
+          }
+        }
+
+        // Remove particles whose lifespan has ended
         particle.lifespan -= 1; // Decrease lifespan at a constant rate
       }
-
       // Remove particles whose lifespan has ended
       particles.removeWhere((particle) => particle.lifespan <= 0);
-
       // Regenerate particles if not never-ending
       if (widget.neverEnding) {
         int missingParticles = widget.maxParticles - particles.length;
@@ -172,12 +274,44 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
     });
   }
 
+  // Function to determine alignment based on spawn direction
+  Alignment getSpawnAlignment(spawnPosition) {
+    switch (spawnPosition) {
+      case SpawnPosition.top:
+        return Alignment.topCenter;
+      case SpawnPosition.bottom:
+        return Alignment.bottomCenter;
+      case SpawnPosition.left:
+        return Alignment.centerLeft;
+      case SpawnPosition.right:
+        return Alignment.centerRight;
+      case SpawnPosition.random:
+        return Alignment.center; // Create random alignment logic
+      default:
+        return Alignment.center;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(widget.width, widget.height),
-      painter: ParticlePainter(particles),
-      child: widget.child,
+    return Stack(
+      children: [
+        if (widget.spawnAreaColor != Colors.transparent)
+          Positioned(
+            left: widget.spawnAreaPosition.dx,
+            top: widget.spawnAreaPosition.dy,
+            child: Container(
+              width: widget.spawnAreaWidth,
+              height: widget.spawnAreaHeight,
+              color: widget.spawnAreaColor,
+            ),
+          ),
+        CustomPaint(
+          size: Size(widget.width, widget.height),
+          painter: ParticlePainter(particles, widget.width, widget.height),
+          child: widget.child,
+        ),
+      ],
     );
   }
 
@@ -203,6 +337,7 @@ class Particle {
   ui.Image? customParticleImage;
   double rotation;
   double rotationSpeed;
+  Gradient? gradient;
 
   Particle({
     required this.neverEnding,
@@ -219,37 +354,36 @@ class Particle {
     required this.customParticleImage,
     required this.rotation,
     required this.rotationSpeed,
+    required this.gradient,
   });
-}
-
-enum ParticleShape {
-  circle,
-  square,
-  triangle,
-  star,
-  hexagon,
-  diamond,
-  pentagon,
-  ellipse,
-  cross,
-  heart,
-  arrow,
-  cloud,
-  octagon,
-  custom,
 }
 
 class ParticlePainter extends CustomPainter {
   final List<Particle> particles;
+  final double width;
+  final double height;
 
-  ParticlePainter(this.particles);
+  ParticlePainter(this.particles, this.width, this.height);
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final particle in particles) {
       final paint = Paint()
-      ..color = particle.color.withOpacity((particle.lifespan / 100).clamp(0.0, 1.0))
       ..style = PaintingStyle.fill;
+      // Check if particle has a gradient
+      if (particle.gradient != null) {
+        final rect = Rect.fromCenter(
+          center: particle.position,
+          width: particle.size,
+          height: particle.size,
+        );
+        paint.shader = particle.gradient!.createShader(rect);
+      } else {
+        // Use solid color if gradient is not provided
+        paint.color = particle.color.withOpacity(
+          (particle.lifespan / 100).clamp(0.0, 1.0),
+        );
+      }
       canvas.save(); // Save canvas state
       try{
         // Apply rotation transformation
@@ -355,8 +489,22 @@ class ParticlePainter extends CustomPainter {
 
             // Use fill style to ensure the shape is completely filled with color
             final paint = Paint()
-              ..color = particle.color
               ..style = PaintingStyle.fill;
+
+            // Use gradient if provided
+            if (particle.gradient != null) {
+              final rect = Rect.fromCenter(
+                center: particle.position,
+                width: width,
+                height: height,
+              );
+              paint.shader = particle.gradient!.createShader(rect);
+            } else {
+              // Use solid color if gradient is not provided
+              paint.color = particle.color.withOpacity(
+                (particle.lifespan / 100).clamp(0.0, 1.0),
+              );
+            }
 
             canvas.drawPath(path, paint);
             break;

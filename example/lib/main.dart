@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:ultimate_particle_fx/particles_enum/movement_direction.dart';
+import 'package:ultimate_particle_fx/particles_enum/particle_shapes.dart';
+import 'package:ultimate_particle_fx/particles_enum/spawn_position.dart';
 import 'package:ultimate_particle_fx/ultimate_particle_fx.dart';
 
 void main() {
@@ -59,6 +62,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Initial range for min and max size
   RangeValues _particleSizeRange = const RangeValues(5.0, 200.0);
+  SpawnPosition _spawnPosition = SpawnPosition.random;
+  MovementDirection _movementDirection = MovementDirection.random;
+  double _spawnWidth = 20.0;
+  double _spawnHeight = 50;
 
   // Helper method to toggle particle shapes on checkbox change
   void _toggleShape(ParticleShape shape, bool isSelected) {
@@ -80,23 +87,37 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           UltimateParticleFx(
             neverEnding: true,
-            width: MediaQuery.of(context).size.width + 150,
-            height: MediaQuery.of(context).size.height + 150,
+            width: MediaQuery.of(context).size.width + 500,
+            height: MediaQuery.of(context).size.height + 500,
             velocity: const Offset(0, 0),
             position: const Offset(0, 0),
-            colors: const [Colors.green, Colors.yellow, Colors.red, Colors.blue],
+            colors: const [Colors.green, Colors.yellow, Colors.red, Colors.blue,Colors.white],
+            // gradient: const LinearGradient(
+            //   colors: [Colors.orange,Colors.red],
+            //   begin: Alignment.topLeft,
+            //   end: Alignment.bottomRight,
+            //   stops: [0.0, 1.0]
+            // ),
             maxSize: _particleSizeRange.end,
             minSize: _particleSizeRange.start,
-            lifespan: 1000,
-            speed: 0.5,
-            maxParticles: 10,
+            lifespan: 2000,
+            speed: 0.1,
+            initialParticles: 8,
+            maxParticles: 200,
             rotation: 0,
             rotationSpeed: 0.0,
-            shapes: _selectedShapes.toList(), // Use selected shapes
+            shapes: _selectedShapes.toList(),
             customParticleImage: const [
               AssetImage('assets/images/cloud.png'),
               AssetImage('assets/images/coin.png'),
             ],
+            allowParticlesExitSpawnArea : true,
+            spawnPosition : _spawnPosition,
+            movementDirection : _movementDirection,
+            spawnAreaPosition: const Offset(0,0),
+            spawnAreaWidth : _spawnWidth,
+            spawnAreaHeight : _spawnHeight,
+            spawnAreaColor: Colors.white.withOpacity(0.1),
             child: const Center(child: Text('')),
           ),
           // DraggableScrollableSheet that contains the customization options
@@ -173,6 +194,97 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'Min Size: ${_particleSizeRange.start.toStringAsFixed(1)}, Max Size: ${_particleSizeRange.end.toStringAsFixed(1)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Spawn Position',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      DropdownButton<SpawnPosition>(
+                        dropdownColor: Colors.black,
+                        value: _spawnPosition,
+                        items: SpawnPosition.values.map((position) {
+                          return DropdownMenuItem(
+                            value: position,
+                            child: Text(
+                              position.toString().split('.').last,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (SpawnPosition? newValue) {
+                          setState(() {
+                            _spawnPosition = newValue ?? _spawnPosition;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Movement Direction',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      DropdownButton<MovementDirection>(
+                        dropdownColor: Colors.black,
+                        value: _movementDirection,
+                        items: MovementDirection.values.map((direction) {
+                          return DropdownMenuItem(
+                            value: direction,
+                            child: Text(
+                              direction.toString().split('.').last,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (MovementDirection? newValue) {
+                          setState(() {
+                            _movementDirection = newValue ?? _movementDirection;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Adjust Spawn Width',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _spawnWidth,
+                        min: 0,
+                        max: MediaQuery.of(context).size.width,
+                        divisions: 100,
+                        label: _spawnWidth.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _spawnWidth = newValue;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Adjust Spawn Height',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _spawnHeight,
+                        min: 0,
+                        max: MediaQuery.of(context).size.height,
+                        divisions: 100,
+                        label: _spawnHeight.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _spawnHeight = newValue;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Spawn Width: ${_spawnWidth.toStringAsFixed(1)}, Spawn Height: ${_spawnHeight.toStringAsFixed(1)}',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
