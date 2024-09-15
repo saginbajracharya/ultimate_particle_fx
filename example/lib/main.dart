@@ -212,27 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Velocity
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Adjust Spawn Height',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      Slider(
-                        activeColor: Colors.white,
-                        inactiveColor: Colors.grey,
-                        value: _spawnHeight,
-                        min: 0,
-                        max: MediaQuery.of(context).size.height,
-                        divisions: 100,
-                        label: _spawnHeight.toStringAsFixed(1),
-                        onChanged: (double newValue) {
-                          setState(() {
-                            _spawnHeight = newValue;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                      // Velocity X
                       const Text(
                         'Adjust Velocity X',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -259,6 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Velocity Y
                       const Text(
                         'Adjust Velocity Y',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -285,6 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Lifespan
                       const Text(
                         'Lifespan',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -310,6 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Speed
                       const Text(
                         'Speed',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -319,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         inactiveColor: Colors.grey,
                         value: speed, // Speed value
                         min: 0.01,
-                        max: 1.0,
+                        max: 10.0,
                         onChanged: (double value) {
                           setState(() {
                             // Update speed value
@@ -330,11 +313,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
-                          'Speed : ${speed.toStringAsFixed(0)}',
+                          'Speed : ${speed.toStringAsFixed(2)}',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Initial Particles
                       const Text(
                         'Initial Particles',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -360,6 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Max Particles
                       const Text(
                         'Max Particles',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -385,6 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Rotation
                       const Text(
                         'Rotation',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -410,6 +396,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Rotation Speed
                       const Text(
                         'Rotation Speed',
                         style: TextStyle(color: Colors.white, fontSize: 18),

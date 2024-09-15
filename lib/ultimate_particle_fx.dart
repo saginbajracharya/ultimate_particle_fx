@@ -274,6 +274,26 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
     });
   }
 
+  void handleTouch(Offset touchPosition) {
+    setState(() {
+      for (var particle in particles) {
+        final distance = (particle.position - touchPosition).distance;
+        if (distance < 100) { // Adjust this threshold as needed
+          // Calculate the force magnitude with a lower multiplier for slower movement
+          final forceMagnitude = (100 - distance) / 50; // Reduced factor for slower movement
+          
+          // Calculate the direction and normalize it
+          final direction = (particle.position - touchPosition);
+          final directionMagnitude = direction.distance;
+          final normalizedDirection = direction / directionMagnitude;
+          
+          // Apply the force to the particle velocity
+          particle.velocity += normalizedDirection * forceMagnitude;
+        }
+      }
+    });
+  }
+
   // Function to determine alignment based on spawn direction
   Alignment getSpawnAlignment(spawnPosition) {
     switch (spawnPosition) {
@@ -294,24 +314,30 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (widget.spawnAreaColor != Colors.transparent)
-          Positioned(
-            left: widget.spawnAreaPosition.dx,
-            top: widget.spawnAreaPosition.dy,
-            child: Container(
-              width: widget.spawnAreaWidth,
-              height: widget.spawnAreaHeight,
-              color: widget.spawnAreaColor,
+    return GestureDetector(
+      onPanUpdate: (details) {
+        // Update the particles' behavior based on the touch
+        handleTouch(details.localPosition);
+      },
+      child: Stack(
+        children: [
+          if (widget.spawnAreaColor != Colors.transparent)
+            Positioned(
+              left: widget.spawnAreaPosition.dx,
+              top: widget.spawnAreaPosition.dy,
+              child: Container(
+                width: widget.spawnAreaWidth,
+                height: widget.spawnAreaHeight,
+                color: widget.spawnAreaColor,
+              ),
             ),
+          CustomPaint(
+            size: Size(widget.width, widget.height),
+            painter: ParticlePainter(particles, widget.width, widget.height),
+            child: widget.child,
           ),
-        CustomPaint(
-          size: Size(widget.width, widget.height),
-          painter: ParticlePainter(particles, widget.width, widget.height),
-          child: widget.child,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
