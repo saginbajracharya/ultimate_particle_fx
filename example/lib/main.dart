@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // A set to keep track of selected particle shapes
   final Set<ParticleShape> _selectedShapes = {
-    ParticleShape.circle,
+    ParticleShape.heart,
   };
 
   // List of all available shapes
@@ -61,11 +61,19 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   // Initial range for min and max size
-  RangeValues _particleSizeRange = const RangeValues(5.0, 200.0);
+  RangeValues _particleSizeRange = const RangeValues(5.0, 10.0);
   SpawnPosition _spawnPosition = SpawnPosition.random;
   MovementDirection _movementDirection = MovementDirection.random;
-  double _spawnWidth = 20.0;
-  double _spawnHeight = 50;
+  double _spawnWidth = 300;
+  double _spawnHeight = 600;
+  double _velocityX = 0;
+  double _velocityY = 0;
+  double lifespan = 500;
+  double speed = 0.01;
+  int initialParticles = 1;
+  int maxParticles = 20;
+  double rotation = 0;
+  double rotationSpeed = 0.0;
 
   // Helper method to toggle particle shapes on checkbox change
   void _toggleShape(ParticleShape shape, bool isSelected) {
@@ -84,12 +92,13 @@ class _MyHomePageState extends State<MyHomePage> {
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       body: Stack(
+        alignment: Alignment.center,
         children: [
           UltimateParticleFx(
             neverEnding: true,
             width: MediaQuery.of(context).size.width + 500,
             height: MediaQuery.of(context).size.height + 500,
-            velocity: const Offset(0, 0),
+            velocity: Offset(_velocityX, _velocityY),
             position: const Offset(0, 0),
             colors: const [Colors.green, Colors.yellow, Colors.red, Colors.blue,Colors.white],
             // gradient: const LinearGradient(
@@ -100,12 +109,12 @@ class _MyHomePageState extends State<MyHomePage> {
             // ),
             maxSize: _particleSizeRange.end,
             minSize: _particleSizeRange.start,
-            lifespan: 2000,
-            speed: 0.1,
-            initialParticles: 8,
-            maxParticles: 200,
-            rotation: 0,
-            rotationSpeed: 0.0,
+            lifespan: lifespan,
+            speed: speed,
+            initialParticles: initialParticles,
+            maxParticles: maxParticles,
+            rotation: rotation,
+            rotationSpeed: rotationSpeed,
             shapes: _selectedShapes.toList(),
             customParticleImage: const [
               AssetImage('assets/images/cloud.png'),
@@ -114,7 +123,10 @@ class _MyHomePageState extends State<MyHomePage> {
             allowParticlesExitSpawnArea : true,
             spawnPosition : _spawnPosition,
             movementDirection : _movementDirection,
-            spawnAreaPosition: const Offset(0,0),
+            spawnAreaPosition: Offset(
+              (MediaQuery.of(context).size.width / 2) - (_spawnWidth / 2),  // Horizontal center
+              (MediaQuery.of(context).size.height / 2) - (_spawnHeight / 2), // Vertical center
+            ),
             spawnAreaWidth : _spawnWidth,
             spawnAreaHeight : _spawnHeight,
             spawnAreaColor: Colors.white.withOpacity(0.1),
@@ -144,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
+                      // Particle Shape Selection
                       const Text(
                         'Particle Shape Selection',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -169,6 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         }).toList(),
                       ),
                       const SizedBox(height: 20),
+                      // Adjust Particle Size
                       const Text(
                         'Adjust Particle Size',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -198,6 +212,230 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Velocity
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Adjust Spawn Height',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _spawnHeight,
+                        min: 0,
+                        max: MediaQuery.of(context).size.height,
+                        divisions: 100,
+                        label: _spawnHeight.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _spawnHeight = newValue;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Adjust Velocity X',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _velocityX,
+                        min: -50.0,
+                        max: 50.0,
+                        divisions: 100,
+                        label: _velocityX.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _velocityX = newValue;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Velocity X : ${_velocityX.toStringAsFixed(0)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Adjust Velocity Y',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _velocityY,
+                        min: -50.0,
+                        max: 50.0,
+                        divisions: 100,
+                        label: _velocityY.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _velocityY = newValue;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Velocity Y : ${_velocityY.toStringAsFixed(0)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Lifespan',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: lifespan, // Adjust lifespan value
+                        min: 10,
+                        max: 99000,
+                        onChanged: (double value) {
+                          setState(() {
+                            // Update lifespan
+                            lifespan = value;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Lifespan : ${lifespan.toStringAsFixed(0)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Speed',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: speed, // Speed value
+                        min: 0.01,
+                        max: 1.0,
+                        onChanged: (double value) {
+                          setState(() {
+                            // Update speed value
+                            speed = value;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Speed : ${speed.toStringAsFixed(0)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Initial Particles',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: initialParticles.toDouble(), // Initial particles
+                        min: 0,
+                        max: 100,
+                        onChanged: (double value) {
+                          setState(() {
+                            // Update initial particles value
+                            initialParticles = value.toInt();
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Iniial Particles : ${initialParticles.toStringAsFixed(0)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Max Particles',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: maxParticles.toDouble(), // Max particles
+                        min: 1,
+                        max: 1000,
+                        onChanged: (double value) {
+                          setState(() {
+                            // Update max particles value
+                            maxParticles = value.toInt();
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Max Particles : ${maxParticles.toStringAsFixed(0)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Rotation',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: rotation, // Rotation
+                        min: -360,
+                        max: 360,
+                        onChanged: (double value) {
+                          setState(() {
+                            // Update rotation value
+                            rotation = value;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Rotation : ${rotation.toStringAsFixed(2)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Rotation Speed',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: rotationSpeed, // Rotation speed
+                        min: 0.0,
+                        max: 360.0,
+                        onChanged: (double value) {
+                          setState(() {
+                            // Update rotation speed
+                            rotationSpeed = value;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Rotation Speed: ${rotationSpeed.toStringAsFixed(2)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Spawn Position
                       const Text(
                         'Spawn Position',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -221,6 +459,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       ),
                       const SizedBox(height: 20),
+                      // Movement Direction
                       const Text(
                         'Movement Direction',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -244,6 +483,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       ),
                       const SizedBox(height: 20),
+                      // Adjust Spawn Width
                       const Text(
                         'Adjust Spawn Width',
                         style: TextStyle(color: Colors.white, fontSize: 18),
@@ -263,6 +503,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       ),
                       const SizedBox(height: 20),
+                      // Adjust Spawn Height
                       const Text(
                         'Adjust Spawn Height',
                         style: TextStyle(color: Colors.white, fontSize: 18),
