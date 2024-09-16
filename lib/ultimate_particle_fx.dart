@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ultimate_particle_fx/particles_enum/movement_direction.dart';
 import 'package:ultimate_particle_fx/particles_enum/particle_shapes.dart';
 import 'package:ultimate_particle_fx/particles_enum/spawn_position.dart';
+import 'package:ultimate_particle_fx/particles_enum/touch_type.dart';
 
 class UltimateParticleFx extends StatefulWidget {
   final bool neverEnding; 
@@ -34,6 +35,7 @@ class UltimateParticleFx extends StatefulWidget {
   final double spawnAreaWidth;
   final double spawnAreaHeight;
   final Color? spawnAreaColor;
+  final TouchType touchType;
 
   const UltimateParticleFx({
     super.key,
@@ -62,6 +64,7 @@ class UltimateParticleFx extends StatefulWidget {
     this.spawnAreaWidth = double.infinity,
     this.spawnAreaHeight = double.infinity, 
     this.spawnAreaColor = Colors.transparent,
+    this.touchType = TouchType.push,
   });
 
   @override
@@ -275,23 +278,159 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
   }
 
   void handleTouch(Offset touchPosition) {
-    setState(() {
+    const double threshold = 100; // You can adjust this threshold as needed
+    const double forceDivisor = 50; // Controls the slow movement speed
+  
+    if(widget.touchType == TouchType.push){
+      setState(() {
+        for (var particle in particles) {
+          final distance = (particle.position - touchPosition).distance;
+          if (distance < 100) { // Adjust this threshold as needed
+            // Calculate the force magnitude with a lower multiplier for slower movement
+            final forceMagnitude = (100 - distance) / 50; // Reduced factor for slower movement
+            
+            // Calculate the direction and normalize it
+            final direction = (particle.position - touchPosition);
+            final directionMagnitude = direction.distance;
+
+            final normalizedDirection = direction / directionMagnitude;
+            
+            // Apply the force to the particle velocity
+            particle.velocity += normalizedDirection * forceMagnitude;
+          }
+        }
+      });
+    }
+    else if(widget.touchType == TouchType.holdAndGrow){
       for (var particle in particles) {
         final distance = (particle.position - touchPosition).distance;
-        if (distance < 100) { // Adjust this threshold as needed
-          // Calculate the force magnitude with a lower multiplier for slower movement
-          final forceMagnitude = (100 - distance) / 50; // Reduced factor for slower movement
-          
-          // Calculate the direction and normalize it
-          final direction = (particle.position - touchPosition);
-          final directionMagnitude = direction.distance;
-          final normalizedDirection = direction / directionMagnitude;
-          
-          // Apply the force to the particle velocity
-          particle.velocity += normalizedDirection * forceMagnitude;
+
+        if (distance < threshold) {
+          // Apply an instantaneous outward velocity
+          final forceMagnitude = (threshold - distance) / forceDivisor;
+
+          // Randomize the explosion direction for each particle
+          final randomAngle = Random().nextDouble() * 2 * pi; // random angle in radians
+          final explosionDirection = Offset(cos(randomAngle), sin(randomAngle));
+
+          // Apply the initial burst velocity in random directions
+          particle.velocity = explosionDirection * forceMagnitude;
+
+          // Reduce the lifespan of the particle to simulate it fading quickly
+          particle.lifespan -= 5;
+
+          // Optional: Make particles expand a little
+          particle.size *= 1.05; // Increase size slightly during explosion
+
+          // Gradually reduce opacity based on lifespan to create the fading effect
+          final opacityFactor = (particle.lifespan / 100).clamp(0.0, 1.0);
+          particle.color = particle.color.withOpacity(opacityFactor);
         }
       }
-    });
+
+      // Remove particles with a lifespan <= 0
+      particles.removeWhere((particle) => particle.lifespan <= 0);
+    }
+    else if (widget.touchType == TouchType.swirl) {
+      for (var particle in particles) {
+        final distance = (particle.position - touchPosition).distance;
+
+        if (distance < threshold) {
+          // Calculate a swirling force with a circular motion
+          final forceMagnitude = (threshold - distance) / forceDivisor;
+
+          // Circular motion using sine and cosine
+          final swirlAngle = atan2(particle.position.dy - touchPosition.dy, particle.position.dx - touchPosition.dx) + pi / 4;
+          final swirlDirection = Offset(cos(swirlAngle), sin(swirlAngle));
+
+          // Apply the swirling velocity
+          particle.velocity = swirlDirection * forceMagnitude;
+
+          // Gradually decrease lifespan
+          particle.lifespan -= 2;
+        }
+      }
+
+      particles.removeWhere((particle) => particle.lifespan <= 0);
+    }
+    else if (widget.touchType == TouchType.implode) {
+      for (var particle in particles) {
+        final distance = (particle.position - touchPosition).distance;
+
+        if (distance < threshold) {
+          // Calculate a force that pulls particles inward
+          final forceMagnitude = (threshold - distance) / forceDivisor;
+
+          // Direction towards the touch position
+          final direction = (touchPosition - particle.position);
+          final normalizedDirection = direction / direction.distance;
+
+          // Apply force towards the touch point
+          particle.velocity += normalizedDirection * forceMagnitude;
+
+          // Reduce lifespan to make particles disappear faster
+          particle.lifespan -= 3;
+        }
+      }
+
+      particles.removeWhere((particle) => particle.lifespan <= 0);
+    }
+    else if (widget.touchType == TouchType.scatter) {
+      for (var particle in particles) {
+        // Random direction
+        final randomAngle = Random().nextDouble() * 2 * pi;
+        final scatterDirection = Offset(cos(randomAngle), sin(randomAngle));
+
+        // Random burst of velocity in a random direction
+        particle.velocity = scatterDirection * (Random().nextDouble() * 5);
+
+        // Gradually reduce lifespan
+        particle.lifespan -= 4;
+
+        // Random size increase to create a "burst" effect
+        particle.size *= 1.1;
+      }
+
+      particles.removeWhere((particle) => particle.lifespan <= 0);
+    }
+    else if (widget.touchType == TouchType.shrinkAndVanish) {
+      for (var particle in particles) {
+        final distance = (particle.position - touchPosition).distance;
+
+        if (distance < threshold) {
+          // No velocity change, just shrink and fade out
+          particle.size *= 0.95; // Shrink
+          particle.lifespan -= 5; // Faster fade out
+
+          // Gradually reduce opacity based on lifespan
+          final opacityFactor = (particle.lifespan / 100).clamp(0.0, 1.0);
+          particle.color = particle.color.withOpacity(opacityFactor);
+        }
+      }
+      particles.removeWhere((particle) => particle.lifespan <= 0);
+    }
+    else if (widget.touchType == TouchType.ripple) {
+      for (var particle in particles) {
+        final distance = (particle.position - touchPosition).distance;
+
+        if (distance < threshold) {
+          // No outward velocity applied
+
+          // Gradually increase size for the ripple effect
+          particle.size *= 1.02;
+
+          // Gradually reduce lifespan to make the particles fade out
+          particle.lifespan -= 2;
+
+          // Optionally, change the color to give a fade effect (based on lifespan)
+          final opacityFactor = (particle.lifespan / 100).clamp(0.0, 1.0);
+          particle.color = particle.color.withOpacity(opacityFactor);
+        }
+      }
+
+      // Remove particles that have no lifespan left
+      particles.removeWhere((particle) => particle.lifespan <= 0);
+    }
   }
 
   // Function to determine alignment based on spawn direction

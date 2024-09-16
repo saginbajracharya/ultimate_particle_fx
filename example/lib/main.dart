@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ultimate_particle_fx/particles_enum/movement_direction.dart';
 import 'package:ultimate_particle_fx/particles_enum/particle_shapes.dart';
 import 'package:ultimate_particle_fx/particles_enum/spawn_position.dart';
+import 'package:ultimate_particle_fx/particles_enum/touch_type.dart';
 import 'package:ultimate_particle_fx/ultimate_particle_fx.dart';
 
 void main() {
@@ -74,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int maxParticles = 20;
   double rotation = 0;
   double rotationSpeed = 0.0;
+  TouchType touchtype = TouchType.swirl;
 
   // Helper method to toggle particle shapes on checkbox change
   void _toggleShape(ParticleShape shape, bool isSelected) {
@@ -130,6 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
             spawnAreaWidth : _spawnWidth,
             spawnAreaHeight : _spawnHeight,
             spawnAreaColor: Colors.white.withOpacity(0.1),
+            touchType: touchtype,
             child: const Center(child: Text('')),
           ),
           // DraggableScrollableSheet that contains the customization options
@@ -156,6 +159,30 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
+                      // Touch Type
+                      const Text(
+                        'Touch Type',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      DropdownButton<TouchType>(
+                        dropdownColor: Colors.black,
+                        value: touchtype,
+                        items: TouchType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(
+                              type.toString().split('.').last,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (TouchType? newValue) {
+                          setState(() {
+                            touchtype = newValue!;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
                       // Particle Shape Selection
                       const Text(
                         'Particle Shape Selection',
