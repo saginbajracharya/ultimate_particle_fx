@@ -217,7 +217,6 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
       shape: widget.shapes[random.nextInt(widget.shapes.length)], 
       customParticleImage: customImages.isNotEmpty ? customImages[random.nextInt(customImages.length)] : null,
       rotation: widget.rotation,
-      rotationSpeed: widget.rotationSpeed,
       gradient: widget.gradient,
     );
   }
@@ -501,7 +500,6 @@ class Particle {
   ParticleShape shape;
   ui.Image? customParticleImage;
   double rotation;
-  double rotationSpeed;
   Gradient? gradient;
 
   Particle({
@@ -518,7 +516,6 @@ class Particle {
     required this.shape,
     required this.customParticleImage,
     required this.rotation,
-    required this.rotationSpeed,
     required this.gradient,
   });
 }
@@ -552,7 +549,7 @@ class ParticlePainter extends CustomPainter {
       canvas.save(); // Save canvas state
       try{
         // Apply rotation transformation
-        final rotationAngle = particle.rotation + particle.rotationSpeed;
+        final rotationAngle = particle.rotation;
         canvas.translate(particle.position.dx, particle.position.dy);
         canvas.rotate(rotationAngle);
         canvas.translate(-particle.position.dx, -particle.position.dy);

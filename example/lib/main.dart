@@ -74,8 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int initialParticles = 1;
   int maxParticles = 20;
   double rotation = 0;
-  double rotationSpeed = 0.0;
   TouchType touchtype = TouchType.swirl;
+  bool neverEnding = true;
+  bool allowParticlesExitSpawnArea = true;
 
   // Helper method to toggle particle shapes on checkbox change
   void _toggleShape(ParticleShape shape, bool isSelected) {
@@ -97,9 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
         alignment: Alignment.center,
         children: [
           UltimateParticleFx(
-            neverEnding: true,
-            width: MediaQuery.of(context).size.width + 500,
-            height: MediaQuery.of(context).size.height + 500,
+            neverEnding: neverEnding,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
             velocity: Offset(_velocityX, _velocityY),
             position: const Offset(0, 0),
             colors: const [Colors.green, Colors.yellow, Colors.red, Colors.blue,Colors.white],
@@ -116,13 +117,12 @@ class _MyHomePageState extends State<MyHomePage> {
             initialParticles: initialParticles,
             maxParticles: maxParticles,
             rotation: rotation,
-            rotationSpeed: rotationSpeed,
             shapes: _selectedShapes.toList(),
             customParticleImage: const [
               AssetImage('assets/images/cloud.png'),
               AssetImage('assets/images/coin.png'),
             ],
-            allowParticlesExitSpawnArea : true,
+            allowParticlesExitSpawnArea : allowParticlesExitSpawnArea,
             spawnPosition : _spawnPosition,
             movementDirection : _movementDirection,
             spawnAreaPosition: Offset(
@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
           DraggableScrollableSheet(
             initialChildSize: 0.08, // Initially collapsed
             minChildSize: 0.08, // Minimum height
-            maxChildSize: 0.8, // Maximum height when fully expanded
+            maxChildSize: 0.3, // Maximum height when fully expanded
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 padding: const EdgeInsets.all(16.0),
@@ -159,6 +159,32 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
+                      // Add Switch for neverEnding
+                      const Text('Never Ending', style: TextStyle(color: Colors.white, fontSize: 18)),
+                      Switch(
+                        value: neverEnding,
+                        activeColor: Colors.white,
+                        inactiveThumbColor: Colors.grey,
+                        onChanged: (bool value) {
+                          setState(() {
+                            neverEnding = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      // Add Switch for allowParticlesExitSpawnArea
+                      const Text('Allow Particles to Exit Spawn Area', style: TextStyle(color: Colors.white, fontSize: 18)),
+                      Switch(
+                        value: allowParticlesExitSpawnArea,
+                        activeColor: Colors.white,
+                        inactiveThumbColor: Colors.grey,
+                        onChanged: (bool value) {
+                          setState(() {
+                            allowParticlesExitSpawnArea = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
                       // Touch Type
                       const Text(
                         'Touch Type',
@@ -207,6 +233,101 @@ class _MyHomePageState extends State<MyHomePage> {
                             checkColor: Colors.black,
                           );
                         }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+                      // Spawn Position
+                      const Text(
+                        'Spawn Position',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      DropdownButton<SpawnPosition>(
+                        dropdownColor: Colors.black,
+                        value: _spawnPosition,
+                        items: SpawnPosition.values.map((position) {
+                          return DropdownMenuItem(
+                            value: position,
+                            child: Text(
+                              position.toString().split('.').last,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (SpawnPosition? newValue) {
+                          setState(() {
+                            _spawnPosition = newValue ?? _spawnPosition;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      // Movement Direction
+                      const Text(
+                        'Movement Direction',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      DropdownButton<MovementDirection>(
+                        dropdownColor: Colors.black,
+                        value: _movementDirection,
+                        items: MovementDirection.values.map((direction) {
+                          return DropdownMenuItem(
+                            value: direction,
+                            child: Text(
+                              direction.toString().split('.').last,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (MovementDirection? newValue) {
+                          setState(() {
+                            _movementDirection = newValue ?? _movementDirection;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      // Adjust Spawn Width
+                      const Text(
+                        'Adjust Spawn Width',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _spawnWidth,
+                        min: 0,
+                        max: MediaQuery.of(context).size.width,
+                        divisions: 100,
+                        label: _spawnWidth.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _spawnWidth = newValue;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      // Adjust Spawn Height
+                      const Text(
+                        'Adjust Spawn Height',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      Slider(
+                        activeColor: Colors.white,
+                        inactiveColor: Colors.grey,
+                        value: _spawnHeight,
+                        min: 0,
+                        max: MediaQuery.of(context).size.height,
+                        divisions: 100,
+                        label: _spawnHeight.toStringAsFixed(1),
+                        onChanged: (double newValue) {
+                          setState(() {
+                            _spawnHeight = newValue;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Spawn Width: ${_spawnWidth.toStringAsFixed(1)}, Spawn Height: ${_spawnHeight.toStringAsFixed(1)}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
                       const SizedBox(height: 20),
                       // Adjust Particle Size
@@ -419,127 +540,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'Rotation : ${rotation.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Rotation Speed
-                      const Text(
-                        'Rotation Speed',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      Slider(
-                        activeColor: Colors.white,
-                        inactiveColor: Colors.grey,
-                        value: rotationSpeed, // Rotation speed
-                        min: 0.0,
-                        max: 360.0,
-                        onChanged: (double value) {
-                          setState(() {
-                            // Update rotation speed
-                            rotationSpeed = value;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Rotation Speed: ${rotationSpeed.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Spawn Position
-                      const Text(
-                        'Spawn Position',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      DropdownButton<SpawnPosition>(
-                        dropdownColor: Colors.black,
-                        value: _spawnPosition,
-                        items: SpawnPosition.values.map((position) {
-                          return DropdownMenuItem(
-                            value: position,
-                            child: Text(
-                              position.toString().split('.').last,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (SpawnPosition? newValue) {
-                          setState(() {
-                            _spawnPosition = newValue ?? _spawnPosition;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      // Movement Direction
-                      const Text(
-                        'Movement Direction',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      DropdownButton<MovementDirection>(
-                        dropdownColor: Colors.black,
-                        value: _movementDirection,
-                        items: MovementDirection.values.map((direction) {
-                          return DropdownMenuItem(
-                            value: direction,
-                            child: Text(
-                              direction.toString().split('.').last,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (MovementDirection? newValue) {
-                          setState(() {
-                            _movementDirection = newValue ?? _movementDirection;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      // Adjust Spawn Width
-                      const Text(
-                        'Adjust Spawn Width',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      Slider(
-                        activeColor: Colors.white,
-                        inactiveColor: Colors.grey,
-                        value: _spawnWidth,
-                        min: 0,
-                        max: MediaQuery.of(context).size.width,
-                        divisions: 100,
-                        label: _spawnWidth.toStringAsFixed(1),
-                        onChanged: (double newValue) {
-                          setState(() {
-                            _spawnWidth = newValue;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      // Adjust Spawn Height
-                      const Text(
-                        'Adjust Spawn Height',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      Slider(
-                        activeColor: Colors.white,
-                        inactiveColor: Colors.grey,
-                        value: _spawnHeight,
-                        min: 0,
-                        max: MediaQuery.of(context).size.height,
-                        divisions: 100,
-                        label: _spawnHeight.toStringAsFixed(1),
-                        onChanged: (double newValue) {
-                          setState(() {
-                            _spawnHeight = newValue;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Spawn Width: ${_spawnWidth.toStringAsFixed(1)}, Spawn Height: ${_spawnHeight.toStringAsFixed(1)}',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
