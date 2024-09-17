@@ -35,6 +35,7 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
 class _MyHomePageState extends State<MyHomePage> {
   final random = Random();
 
@@ -66,13 +67,12 @@ class _MyHomePageState extends State<MyHomePage> {
   SpawnPosition _spawnPosition = SpawnPosition.random;
   MovementDirection _movementDirection = MovementDirection.random;
   double _spawnWidth = 300;
-  double _spawnHeight = 600;
+  double _spawnHeight = 00;
   double _velocityX = 0;
   double _velocityY = 0;
   double lifespan = 500;
-  double speed = 0.01;
-  int initialParticles = 1;
-  int maxParticles = 20;
+  double speed = 0.1;
+  int maxParticles = 10;
   double rotation = 0;
   TouchType touchtype = TouchType.swirl;
   bool neverEnding = true;
@@ -114,7 +114,6 @@ class _MyHomePageState extends State<MyHomePage> {
             minSize: _particleSizeRange.start,
             lifespan: lifespan,
             speed: speed,
-            initialParticles: initialParticles,
             maxParticles: maxParticles,
             rotation: rotation,
             shapes: _selectedShapes.toList(),
@@ -462,32 +461,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'Speed : ${speed.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Initial Particles
-                      const Text(
-                        'Initial Particles',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      Slider(
-                        activeColor: Colors.white,
-                        inactiveColor: Colors.grey,
-                        value: initialParticles.toDouble(), // Initial particles
-                        min: 0,
-                        max: 100,
-                        onChanged: (double value) {
-                          setState(() {
-                            // Update initial particles value
-                            initialParticles = value.toInt();
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Iniial Particles : ${initialParticles.toStringAsFixed(0)}',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),

@@ -20,13 +20,11 @@ class UltimateParticleFx extends StatefulWidget {
   final double minSize;
   final double maxSize; 
   final double lifespan;
-  final int initialParticles;
   final int maxParticles;
   final double speed;
   final List<ParticleShape> shapes;
   final List<ImageProvider>? customParticleImage;
   final double rotation;
-  final double rotationSpeed;
   final Gradient? gradient;
   final bool allowParticlesExitSpawnArea; // Allow Particles to Escape Defined Spawn Area Or Not
   final Offset spawnAreaPosition; // Position of the spawn area
@@ -49,13 +47,11 @@ class UltimateParticleFx extends StatefulWidget {
     this.minSize = 5.0,
     this.maxSize = 6.0,
     this.lifespan = 100.0,
-    this.initialParticles = 1,
     this.maxParticles= 100,
     this.speed = 1.0,
     this.shapes = const [ParticleShape.heart],
     this.customParticleImage,
     this.rotation = 0.0,
-    this.rotationSpeed = 0.0,
     this.gradient,
     this.allowParticlesExitSpawnArea = true,
     this.spawnAreaPosition = const Offset(0, 0),
@@ -338,18 +334,26 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
           // Calculate a swirling force with a circular motion
           final forceMagnitude = (threshold - distance) / forceDivisor;
 
-          // Circular motion using sine and cosine
-          final swirlAngle = atan2(particle.position.dy - touchPosition.dy, particle.position.dx - touchPosition.dx) + pi / 4;
+          // Calculate the angle between the particle and the touch position
+          final angleToParticle = atan2(
+            particle.position.dy - touchPosition.dy,
+            particle.position.dx - touchPosition.dx,
+          );
+
+          // Apply a 90-degree offset to the angle for tangential motion
+          final swirlAngle = angleToParticle + pi / 2;
+
+          // Calculate the swirling direction using sine and cosine
           final swirlDirection = Offset(cos(swirlAngle), sin(swirlAngle));
 
-          // Apply the swirling velocity
-          particle.velocity = swirlDirection * forceMagnitude;
+          // Apply the swirling force to the current velocity for smooth motion
+          particle.velocity += swirlDirection * forceMagnitude;
 
-          // Gradually decrease lifespan
-          particle.lifespan -= 2;
+          // Gradually decrease lifespan based on distance or apply a constant reduction
+          particle.lifespan -= 2; // You could vary this based on distance for more dynamic effect
         }
       }
-
+      // Remove dead particles
       particles.removeWhere((particle) => particle.lifespan <= 0);
     }
     else if (widget.touchType == TouchType.implode) {
@@ -413,15 +417,13 @@ class UltimateParticleFxState extends State<UltimateParticleFx> with TickerProvi
         final distance = (particle.position - touchPosition).distance;
 
         if (distance < threshold) {
-          // No outward velocity applied
+          // Gradually increase size for the ripple effect at a slower rate
+          particle.size *= 1.005; // Slower growth
 
-          // Gradually increase size for the ripple effect
-          particle.size *= 1.02;
+          // Gradually reduce lifespan more slowly for a smoother fade out
+          particle.lifespan -= 0.5; // Reduced rate
 
-          // Gradually reduce lifespan to make the particles fade out
-          particle.lifespan -= 2;
-
-          // Optionally, change the color to give a fade effect (based on lifespan)
+          // Change color opacity for fade effect based on lifespan
           final opacityFactor = (particle.lifespan / 100).clamp(0.0, 1.0);
           particle.color = particle.color.withOpacity(opacityFactor);
         }
