@@ -40,7 +40,7 @@ class UltimateParticleFx extends StatefulWidget {
     this.neverEnding = false,
     this.child = const SizedBox(), 
     this.width = 300,
-    this.height = 300,
+    this.height = 600,
     this.position = const Offset(0, 0), 
     this.velocity = const Offset(1,1), 
     this.colors = const [Colors.black,Colors.red,Colors.blue],

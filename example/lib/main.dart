@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   SpawnPosition _spawnPosition = SpawnPosition.random;
   MovementDirection _movementDirection = MovementDirection.random;
   double _spawnWidth = 300;
-  double _spawnHeight = 00;
+  double _spawnHeight = 300;
   double _velocityX = 0;
   double _velocityY = 0;
   double lifespan = 500;
@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: const BoxDecoration(
-                  color: Colors.white12,
+                  color: Color.fromARGB(104, 86, 86, 86),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
                 ),
                 child: SingleChildScrollView(
