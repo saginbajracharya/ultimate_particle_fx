@@ -30,10 +30,9 @@ import 'package:ultimate_particle_fx/ultimate_particle_fx.dart';
         maxSize: 200.0,
         minSize: 5.0,
         lifespan: 1000,
-        speed: 0.5,
         maxParticles: 10,
+        speed: 0.5,
         rotation: 0,
-        rotationSpeed: 0.0,
         shapes: const [
           ParticleShape.circle, 
           ParticleShape.square, 
@@ -55,6 +54,20 @@ import 'package:ultimate_particle_fx/ultimate_particle_fx.dart';
           AssetImage('assets/images/coin.png'),
           NetworkImage('https://www.vhv.rs/dpng/d/397-3976228_wispy-clouds-sprite-cloud-sprite-hd-png-download.png'),
         ],
+        gradient: const LinearGradient(
+          colors: [Colors.orange,Colors.red],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          stops: [0.0, 1.0]
+        ),
+        allowParticlesExitSpawnArea : true,
+        spawnAreaPosition : const Offset(0, 0),
+        spawnPosition : SpawnPosition.random,
+        movementDirection : MovementDirection.random,
+        spawnAreaWidth : double.infinity,
+        spawnAreaHeight : double.infinity, 
+        spawnAreaColor : Colors.transparent,
+        touchType: TouchType.push,
         child: const Center(
           child: Text('Ultimate Particle FX')
         )
@@ -70,18 +83,26 @@ import 'package:ultimate_particle_fx/ultimate_particle_fx.dart';
 | neverEnding                      | NeverEnding or Ending type of Effect                                            |
 | width                            | Width of A Particles Container                                                  |
 | height                           | Height of A Particles Container                                                 |
-| velocity                         | Velocity Offset                                                                 |
 | position                         | Position OffSet                                                                 |
+| velocity                         | Velocity Offset                                                                 |
 | colors                           | List of Colors For A Particle                                                   |
-| maxSize                          | Maximum Size of A Particle                                                      |
 | minSize                          | Minimum Size of A Particle                                                      |
+| maxSize                          | Maximum Size of A Particle                                                      |
 | lifespan                         | LifeSpan of A Particle                                                          |
-| speed                            | Speed of Animation                                                              |
 | maxParticles                     | Maximum no of Particles                                                         |
-| rotation                         | rotation                                                                        |
-| rotationSpeed                    | Speed of rotation                                                               |
+| speed                            | Speed of Animation                                                              |
 | shapes                           | Shapes                                                                          |
 | customParticleImage              | Custom Image For A Particle                                                     |
+| rotation                         | rotation                                                                        |
+| gradient                         | gradient for shapes [Note: Gradient is priority if given else color]            |
+| allowParticlesExitSpawnArea      | Bool Allow or Not Allow Particles to exit the given spawn width height bound    |
+| spawnAreaPosition                | Position of Spawn Area Offset(dx,dy)                                            |
+| spawnPosition                    | Particle Spawn Position within the spawnAreaPosition                            |
+| movementDirection                | Movement Direction of the particles after emission                              |
+| spawnAreaWidth                   | Width for Spawn Area                                                            |
+| spawnAreaHeight                  | Height for Spawn Area                                                           |
+| spawnAreaColor                   | Color for Spawn Area                                                            |
+| touchType                        | On Touch particle effects                                                       |
 | child                            | Child as a Widget                                                               |
 
 ## Check Out example project @ [example](example)
