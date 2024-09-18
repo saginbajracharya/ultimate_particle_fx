@@ -2,6 +2,8 @@
 
 Ultimate Particle FX is a customizable Particle Effects for your Flutter Applications.
 
+![ultimate Particle Fx](doc/ss_1.png)
+
 ## How To Use
 
 Ultimate Particle FX can be used simply as a widget

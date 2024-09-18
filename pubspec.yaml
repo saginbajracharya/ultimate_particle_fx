@@ -16,6 +16,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.0
 
+screenshots:
+  - description: 'Ultimate Particle Fx Example'
+    path: doc/ss_1.png
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

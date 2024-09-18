@@ -1,3 +1,5 @@
-## 0.0.1
+# VERSION LOG
 
-* TODO: Describe initial release.
+## [0.0.1]
+
+* Publish the packages to pub.dev
